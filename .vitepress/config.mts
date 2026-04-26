@@ -26,6 +26,12 @@ export default defineConfig({
       ],
       '/01_AI/': [
         {
+          text: 'AI',
+          items: [
+            { text: 'MCP 详解', link: '/01_AI/MCP-Detail' },
+          ]
+        },
+        {
           text: 'Learn Claude Code',
           items: [
             { text: 'Mini Agent Loop', link: '/01_AI/Mini-Agent-Loop' },
