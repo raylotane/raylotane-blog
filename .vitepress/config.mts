@@ -9,6 +9,7 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Inbox', link: '/00_Inbox' },
+      { text: '阅读', link: '/03_Reading' },
       {
         text: 'AI工程应用', items: [
           { text: 'AI评估系列', link: '/01_AI_Engineering/ai-evaluation-series/blog-v1-basic-chat' },
@@ -64,6 +65,15 @@ export default defineConfig({
           items: [
             { text: '基于 Rollup 的多页面构建', link: '/02_Engineering/building-react-mpa-with-morejs-cli.md.md' },
             { text: '从零实现一个插件化 CLI 工具', link: '/02_Engineering/fewjs-plugin-architecture.md' },
+          ]
+        }
+      ],
+      "/03_Reading/": [
+        {
+          text: '阅读',
+          items: [
+            { text: '阅览室', link: '/03_Reading' },
+            { text: '《了凡四训》—— 命由我作，福自己求', link: '/03_Reading/了凡四训——命由我作，福自己求' },
           ]
         }
       ]

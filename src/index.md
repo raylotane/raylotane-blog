@@ -16,6 +16,9 @@ features:
   - title: 前端工程化
     details: Rollup 打包、CLI 工具、插件架构、构建优化
     link: /02_Engineering/building-react-mpa-with-morejs-cli.md.md
+  - title: 阅读
+    details: 读书笔记、书摘与思考，在技术之外保持人文温度
+    link: /03_Reading
 
 footer: |
   专注前端工程化与 AI 应用开发<br>
