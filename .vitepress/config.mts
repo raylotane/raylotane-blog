@@ -75,6 +75,7 @@ export default defineConfig({
             { text: '阅览室', link: '/03_Reading' },
             { text: '《了凡四训》—— 命由我作，福自己求', link: '/03_Reading/了凡四训——命由我作，福自己求' },
             { text: '《非线性成长》', link: '/03_Reading/⾮线性成⻓：不确定时代下的职业发展和商业通关策略' },
+            { text: '《我不是废柴》——"安全感"伴随普通人一生', link: '/03_Reading/我不是废柴——"安全感"伴随普通人一生' },
           ]
         }
       ]
