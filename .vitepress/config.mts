@@ -81,6 +81,14 @@ export default defineConfig({
             { text: '《真需求》', link: '/03_Reading/真需求' },
             { text: '《市场的微观结构理论》', link: '/03_Reading/《市场的微观结构理论》' },
           ]
+        },
+        {
+          text: '基于K线的技术交易',
+          items: [
+            { text: '认识K线', link: '/03_Reading/基于K线的技术交易/01_认识K线' },
+            { text: '道氏理论', link: '/03_Reading/基于K线的技术交易/02_道式理论' },
+            { text: '趋势', link: '/03_Reading/基于K线的技术交易/03_趋势' },
+          ]
         }
       ]
     },
