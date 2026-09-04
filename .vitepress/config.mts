@@ -79,6 +79,7 @@ export default defineConfig({
             { text: '《被讨厌的勇气》——观察、认识、跳出"我执"', link: '/03_Reading/被讨厌的勇气——观察、认识、跳出“我执”.md' },
             { text: '【TED】伟大的领导者是如何激励人们行动的', link: '/03_Reading/伟大的领导者是如何激励人们行动的.md' },
             { text: '《真需求》', link: '/03_Reading/真需求' },
+            { text: '《市场的微观结构理论》', link: '/03_Reading/《市场的微观结构理论》' },
           ]
         }
       ]
