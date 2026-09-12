@@ -51,7 +51,7 @@ f(): called
 
 
 
-## 装饰器原理
+## 手写装饰器
 ### 总结
 装饰器可以在类、方法、属性三个维度使用，每个维度有其特定的使用场景。
 
@@ -332,5 +332,217 @@ person.watchTv();
 
 适合做横切关注点（cross-cutting concerns）：日志、计时、鉴权、缓存、防抖等，避免在每个方法里重复写这些代码。
 
+## 装饰器原理
+
+原生 JS 实际是不支持装饰器的，所以 TypeScript 编译器借助 JS的类的原型、反射、元信息等特性，将装饰器转换为相应的函数调用，以实现装饰器的功能。
+
+```ts
+// a.ts
+const Vaildate = function (ctor: any) {
+  ctor.prototype.validate = function () {
+    if (!this.name) {
+      return ['name 不能为空']
+    }
+    return []
+  }
+}
+
+/**
+ * 这个方法实际没有效果，因为装饰器的执行时机是类定义时，而不是实例化时，那时还没有实例化，这里只做为演示
+ * @param target 
+ * @param key 
+ */
+const readonly = (target: any, key: string) => {
+  let value: any
+  console.log("readonly", target, key)
+  Object.defineProperty(target, key, {
+    get() { return value + 1; },
+    set(v: any) {
+      // 只允许设置一次
+      if (value === undefined) value = v;
+    },
+    enumerable: true,
+    configurable: true,
+  });
+}
+
+/**
+ * 方法装饰器：计算方法执行耗时
+ * @param target      类的原型对象（实例方法）或构造函数（静态方法）
+ * @param key         被装饰的方法名
+ * @param descriptor  属性描述符，可通过 descriptor.value 拿到原方法
+ */
+const measure = (target: any, key: string, descriptor: PropertyDescriptor) => {
+  const original = descriptor.value;
+  descriptor.value = function (...args: any[]) {
+    const start = performance.now();
+    const result = original.apply(this, args);
+    console.log(`${key} 耗时 ${performance.now() - start}ms`);
+    return result;
+  };
+}
+interface Person {
+  validate: () => void;
+}
+
+@Vaildate
+class Person {
+
+  @readonly
+  name?: string;
+
+  @measure
+  watchTv() {
+    console.log('watching tv');
+  }
+
+}
+
+const person = new Person()
+
+// --- 校验演示 ---
+console.log('--- 校验 name ---\n');
+
+console.log('① name 为空：', person.validate());
+
+person.name = '张三';
+console.log('③ name 合法：', person.validate());
+
+person.watchTv()
+
+```
+
+这是一个 TS Case，包含类、属性、方法各一个注解。下面看编译后的 JS 文件
+
+```js
+// a.js
+var __legacyDecorateClassTS = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
+    r = Reflect.decorate(decorators, target, key, desc);
+  else
+    for (var i = decorators.length - 1;i >= 0; i--)
+      if (d = decorators[i])
+        r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+
+var Vaildate = function(ctor) {
+  ctor.prototype.validate = function() {
+    if (!this.name) {
+      return ["name 不能为空"];
+    }
+    return [];
+  };
+};
+var readonly = (target, key) => {
+  let value;
+  console.log("readonly", target, key);
+  Object.defineProperty(target, key, {
+    get() {
+      return value + 1;
+    },
+    set(v) {
+      if (value === undefined)
+        value = v;
+    },
+    enumerable: true,
+    configurable: true
+  });
+};
+var measure = (target, key, descriptor) => {
+  const original = descriptor.value;
+  descriptor.value = function(...args) {
+    const start = performance.now();
+    const result = original.apply(this, args);
+    console.log(`${key} 耗时 ${performance.now() - start}ms`);
+    return result;
+  };
+};
+
+class Person {
+  watchTv() {
+    console.log("watching tv");
+  }
+}
+__legacyDecorateClassTS([
+  readonly
+], Person.prototype, "name", undefined);
+__legacyDecorateClassTS([
+  measure
+], Person.prototype, "watchTv", null);
+Person = __legacyDecorateClassTS([
+  Vaildate
+], Person);
+var person = new Person;
+console.log(`--- 校验 name ---
+`);
+console.log("① name 为空：", person.validate());
+person.name = "张三";
+console.log("③ name 合法：", person.validate());
+person.watchTv();
+
+```
+
+重点在 头文件的 `__legacyDecorateClassTS`， 以及末尾调用。
+
+对于属性和方式的调用是四个入参，分别是：
+  1. 装饰器列表
+  2. 类原型
+  3. 属性名/函数名
+  4. undefined/null
+
+
+类的调用入参为：
+  1. 装饰器列表
+  2. 类自身
+
+
+
+在看 `__legacyDecorateClassTS` 详解
+```js
+function __legacyDecorateClassTS(decorators, target, key, desc) {
+  const c = arguments.length;   // 实际传进来的参数个数
+
+  // ① 准备"被装饰的东西" r
+  let r;
+  if (c < 3) {
+    // 类装饰器：被装饰物就是类本身
+    r = target;
+  } else if (desc === null) {
+    // 方法/访问器装饰器：desc 传的 null，需要手动从原型上取出方法描述符
+    desc = Object.getOwnPropertyDescriptor(target, key);
+    r = desc;
+  } else {
+    // 属性装饰器：desc 是 undefined，直接拿来用
+    r = desc;
+  }
+
+  // ② 环境有原生 Reflect.decorate 就直接交给它（基本用不到）
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") {
+    r = Reflect.decorate(decorators, target, key, desc);
+  } else {
+    // ③ 手动执行装饰器：从后往前（倒序，洋葱模型）
+    for (let i = decorators.length - 1; i >= 0; i--) {
+      const d = decorators[i];
+      if (!d) continue;
+
+      if (c < 3) {
+        r = d(r) || r;               // 类装饰器：d(类)
+      } else if (c > 3) {
+        r = d(target, key, r) || r;  // 成员装饰器：d(原型, 名字, 描述符)
+      } else {
+        r = d(target, key) || r;     // 3个参数的情况，实际产物里用不到
+      }
+    }
+  }
+
+  // ④ 成员装饰器：把（可能被改过的）描述符写回对象
+  if (c > 3 && r) Object.defineProperty(target, key, r);
+
+  return r;
+}
+
+```
 
 
