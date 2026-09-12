@@ -1,3 +1,5 @@
+# TypeScript装饰器原理
+
 ## 概述
 > 随着TypeScript和ES6里引入了类，在一些场景下我们需要额外的特性来支持标注或修改类及其成员。 装饰器（Decorators）为我们在类的声明及成员上通过元编程语法添加标注提供了一种方式。 Javascript里的装饰器目前处在 [建议征集的第二阶段](https://github.com/tc39/proposal-decorators)，**但在TypeScript里已做为一项实验性特性予以支持。**
 >
@@ -120,7 +122,7 @@ console.log('② name 不为空：', new Person('raloy').validate())
 类装饰器核心能力是「替换或增强整个类」。类装饰器的参数是构造函数本身，不是实例。
 
 ### 属性
-### 实现-属性装饰器
+#### 实现-属性装饰器
 ```typescript
 
 
