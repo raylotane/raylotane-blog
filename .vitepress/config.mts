@@ -65,6 +65,7 @@ export default defineConfig({
           items: [
             { text: '基于 Rollup 的多页面构建', link: '/02_Engineering/building-react-mpa-with-morejs-cli.md.md' },
             { text: '从零实现一个插件化 CLI 工具', link: '/02_Engineering/fewjs-plugin-architecture.md' },
+            { text: 'TypeScript 装饰器原理', link: '/02_Engineering/TypeScript装饰器原理' },
           ]
         }
       ],
